@@ -4,7 +4,7 @@ import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
-socketio = SocketIO(app, cors_allowed_origins="*"))
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # In-memory storage for lobby participants
 # Updated structure for lobbies
