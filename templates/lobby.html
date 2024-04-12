@@ -41,7 +41,7 @@
     <a href="/logout">Logout</a>
 
     <script type="text/javascript">
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        var socket = io.connect();
         var currentUsername = "{{ session['username'] }}"; // Assuming you pass this from Flask
         var isAdmin = "{{ session['username'] }}" === "{{ lobby_admin }}";
         
