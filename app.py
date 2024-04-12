@@ -18,7 +18,7 @@ lobbies = {
 
 # Utility functions for users and lobbies
 def load_users():
-    with open('C:\\Coding Projects\\Kahoot Tests\\Lobby StartTest3\\users.json') as f:
+    with open('users.json') as f:
         data = json.load(f)
     return data.get("users", [])
 
