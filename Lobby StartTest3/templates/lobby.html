@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ lobby_name }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
+</head>
+<body>
+    <h1>Welcome to {{ lobby_name }}</h1>
+    <!-- Displaying the admin -->
+    <h3>Lobby Admin: {{ lobby_admin }}</h3>
+    <h2>Members in this lobby:</h2>
+    <ul id="membersList">
+        
+    </ul>
+    
+    <!-- Admin Controls -->
+    <div id="adminControls"></div> <!-- Admin Controls Placeholder -->
+
+    <!-- Example dropdown menu for admin to select a new page to switch to -->
+    <select id="pageSelector" onchange="adminSwitchPage()">
+        <option value="page1">Page 1</option>
+        <option value="page2">Page 2</option>
+        <!-- Add more options as needed -->
+    </select>
+
+    <div id="content">
+        <div id="page1" style="display: none;">
+            <h2>Page 1 Content</h2>
+            <!-- Content for Page 1 -->
+        </div>
+        <div id="page2" style="display: none;">
+            <h2>Page 2 Content</h2>
+            <!-- Content for Page 2 -->
+        </div>
+        <!-- Add more sections for additional pages as needed -->
+    </div>
+    
+
+    <a href="/select_lobby">Select a different lobby</a>
+    <a href="/logout">Logout</a>
+
+    <script type="text/javascript">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        var currentUsername = "{{ session['username'] }}"; // Assuming you pass this from Flask
+        var isAdmin = "{{ session['username'] }}" === "{{ lobby_admin }}";
+        
+        socket.on('connect', function() {
+            // On connecting, join the lobby room
+            socket.emit('join', {lobby_name: "{{ lobby_name }}"});
+            //switchPageContent('page1');
+        });
+    
+        socket.on('lobby_updated', function(data) {
+            // Assuming 'data.members' contains the updated list of members
+            var membersList = data.members;
+            
+            var membersListHtml = membersList.map(function(member) {
+                return `<li>${member}</li>`; // Modify as needed to display members
+            }).join('');
+    
+            document.getElementById('membersList').innerHTML = membersListHtml;
+
+            updateAdminControls(membersList)
+        });
+
+        socket.on('remove_user', function(data)  {
+            console.log(data)
+        });
+
+        function updateAdminControls(members) {
+            const adminControlsContainer = document.getElementById('adminControls');
+            if (isAdmin) {
+                let adminControlsHtml = '<h3>Admin Controls</h3><ul>';
+                members.forEach(function(member) {
+                    if (member !== currentUsername) { // Don't show remove option for admin themselves
+                        adminControlsHtml += `<li>${member} <button onclick="removeUser('${member}')">Remove</button></li>`;
+                    }
+                });
+                adminControlsHtml += '</ul>';
+                adminControlsContainer.innerHTML = adminControlsHtml;
+            } else {
+                adminControlsContainer.innerHTML = ''; // Hide admin controls for non-admin users
+            }
+            
+        }
+
+        function removeUser(username) {
+            // Make an AJAX POST request to the server's remove_user route
+            fetch('/remove_user/' + encodeURIComponent("{{ lobby_name }}") + '/' + encodeURIComponent(username), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // CSRF token header; adjust based on how you handle CSRF protection
+                },
+                body: JSON.stringify({}),
+                credentials: 'include' // Necessary for sessions to work
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log(username + ' removed successfully');
+                } else {
+                    console.error('Failed to remove user');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+
+            socket.on('removed_from_lobby', function() {
+                alert('You have been removed from the lobby.');
+                window.location.href = '/select_lobby'; // Redirect the removed user
+            });
+        }
+
+
+        socket.on('page_switched', function(data) {
+            console.log("Switching to new page:", data.new_page);
+            switchPageContent(data.new_page);
+        });
+        
+        
+        function switchPageContent(pageIdentifier) {
+            // Just change the background color of the body to ensure the function is called
+            document.body.style.backgroundColor = pageIdentifier === 'page1' ? 'lightblue' : 'lightgreen';
+        }
+        
+
+        function adminSwitchPage() {
+            const selectedPage = document.getElementById('pageSelector').value;
+            console.log(selectedPage)
+            // Emit the 'switch_page' event to the server with the selected page
+            socket.emit('switch_page', {lobby_name: "{{ lobby_name }}", new_page: selectedPage});
+        }
+        
+
+    </script>
+    
+    
+
+
+</body>
+</html>
