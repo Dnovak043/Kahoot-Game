@@ -6,53 +6,103 @@
 
 </head>
 <body>
-    <h1>Welcome to {{ lobby_name }}</h1>
-    <!-- Displaying the admin -->
-    <h3>Lobby Admin: {{ lobby_admin }}</h3>
-    <h2>Members in this lobby:</h2>
-    <p>{{ users }}</p>
-    <ul id="membersList">
-        
-    </ul>
+    
+    
     
     <!-- Admin Controls -->
-    <div id="adminControls"></div> <!-- Admin Controls Placeholder -->
+    <div id="adminControls" style="display: none;">
+        <h3>Admin Controls</h3>
+        <ul id="adminMembers">
+            Members
+            
+        </ul>
 
-    <!-- Example dropdown menu for admin to select a new page to switch to -->
-    <select id="pageSelector" onchange="adminSwitchPage()">
-        <option value="page1">Page 1</option>
-        <option value="page2">Page 2</option>
-        <!-- Add more options as needed -->
-    </select>
+        <!-- Example dropdown menu for admin to select a new page to switch to -->
+        <select id="pageSelector" onchange="adminSwitchPage()">
+            <option value="lobby">Lobby</option>
+            {% for question in quiz.questions %}
+            <option value="question{{ loop.index }}">question{{ loop.index }}</option>
+            {% endfor %}
+            <!-- Add more options as needed -->
+        </select>
+
+
+        <h2>Quiz Questions</h2>
+        <div>
+            {% for question in quiz.questions %}
+            <div>
+                <p><strong>Question: </strong>{{ question.question }}</p>
+                <ul>
+                    {% for option in question.options %}
+                    <li>{{ option }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+
+        
+    </div> <!-- Admin Controls End -->
 
     <div id="content">
-        <div id="page1" style="display: none;">
-            <h2>Page 1 Content</h2>
+        <div id="lobby" style="display: block;">
+            <h1>Welcome to {{ lobby_name }}</h1>
+            <!-- Displaying the admin -->
+            <h3>Lobby Admin: {{ lobby_admin }}</h3>
+
+            <h2>Members:</h2>
+            <ul id="membersList">
+            </ul>
+
+            
             <!-- Content for Page 1 -->
         </div>
-        <div id="page2" style="display: none;">
-            <h2>Page 2 Content</h2>
-            <!-- Content for Page 2 -->
-        </div>
-        <!-- Add more sections for additional pages as needed -->
+        
+        <!-- Dynamically generated question pages -->
+        {% if quiz %}
+            {% for question in quiz.questions %}
+            <div id="question{{ loop.index }}" style="display: none;">
+                <h2>{{ question.question }}</h2>
+                <ul>
+                    {% for option in question.options %}
+                    <li>
+                        <input type="radio" id="option{{ loop.index }}_{{ loop.index0 }}" name="selected_answer" value="{{ option }}">
+                        <label for="option{{ loop.index }}_{{ loop.index0 }}">{{ option }}</label>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div id="leaderboard" style="display: none;">
+            <h2>Leaderboard</h2>
+            <ul id="leaderboardList"></ul>
+        </div>        
+
     </div>
+
+</div>
     
 
     <a href="/select_lobby">Select a different lobby</a>
     <a href="/logout">Logout</a>
 
     <script type="text/javascript">
-        var socket = io.connect();
+        var quiz = {{ quiz|tojson }};
+
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
         var currentUsername = "{{ session['username'] }}"; // Assuming you pass this from Flask
         var isAdmin = "{{ session['username'] }}" === "{{ lobby_admin }}";
         
         socket.on('connect', function() {
             // On connecting, join the lobby room
             socket.emit('join', {lobby_name: "{{ lobby_name }}"});
-            //switchPageContent('page1');
         });
     
         socket.on('lobby_updated', function(data) {
+            
+            
             // Assuming 'data.members' contains the updated list of members
             var membersList = data.members;
             
@@ -62,6 +112,7 @@
     
             document.getElementById('membersList').innerHTML = membersListHtml;
 
+            //adminSwitchPage()
             updateAdminControls(membersList)
         });
 
@@ -70,18 +121,19 @@
         });
 
         function updateAdminControls(members) {
-            const adminControlsContainer = document.getElementById('adminControls');
+            const adminControlsContainer = document.getElementById('adminMembers');
             if (isAdmin) {
-                let adminControlsHtml = '<h3>Admin Controls</h3><ul>';
+                let adminControlsHtml = '';
                 members.forEach(function(member) {
                     if (member !== currentUsername) { // Don't show remove option for admin themselves
                         adminControlsHtml += `<li>${member} <button onclick="removeUser('${member}')">Remove</button></li>`;
                     }
                 });
-                adminControlsHtml += '</ul>';
+                //adminControlsHtml += '</ul>';
                 adminControlsContainer.innerHTML = adminControlsHtml;
+                document.getElementById('adminControls').style.display = 'block';
             } else {
-                adminControlsContainer.innerHTML = ''; // Hide admin controls for non-admin users
+                document.getElementById('adminControls').style.display = 'none';
             }
             
         }
@@ -116,24 +168,112 @@
         }
 
 
-        socket.on('page_switched', function(data) {
-            console.log("Switching to new page:", data.new_page);
-            switchPageContent(data.new_page);
+        /*function adminSwitchPage() {
+            // Get the value of the selected option in the dropdown
+            var selectedPage = document.getElementById('pageSelector').value;
+        
+            // Get all page divs under the 'content' div
+            var pages = document.getElementById('content').children;
+        
+            // Loop through all pages and hide them
+            for (var i = 0; i < pages.length; i++) {
+                pages[i].style.display = 'none';
+            }
+        
+            // Display the selected page
+            document.getElementById(selectedPage).style.display = 'block';
+        }*/
+
+
+        function adminSwitchPage() {
+            var selectedPage = document.getElementById('pageSelector').value;
+        
+            // Emit an event to the server to inform about the page change
+            socket.emit('page_change', {lobby_name: "{{ lobby_name }}", newPage: selectedPage});
+        }
+
+        socket.on('change_page', function(data) {
+            switchToPage(data.newPage);
+        });
+        
+        function switchToPage(pageId) {
+            var pages = document.getElementById('content').children;
+            for (var i = 0; i < pages.length; i++) {
+                pages[i].style.display = 'none';  // Hide all pages
+            }
+            document.getElementById(pageId).style.display = 'block';  // Show the current page
+        
+            // Stop any existing timer
+            if (window.currentTimer) {
+                clearInterval(window.currentTimer);
+            }
+        
+            // Start a new timer if the selected page is a question page
+            if (pageId.startsWith('question')) {
+                var questionIndex = parseInt(pageId.replace('question', '')) - 1;
+                var questionTime = quiz.questions[questionIndex].time;
+                var timerDisplay = document.getElementById('timerDisplay' + questionIndex);
+        
+                // If there's no existing timer display for this question, create it
+                if (!timerDisplay) {
+                    timerDisplay = document.createElement('div');
+                    timerDisplay.id = 'timerDisplay' + questionIndex;  // Ensure unique ID for each timer display
+                    document.getElementById(pageId).appendChild(timerDisplay);
+                }
+        
+                timerDisplay.innerHTML = 'Time Remaining: ' + questionTime + ' seconds';
+        
+                // Update the timer every second
+                window.currentTimer = setInterval(function() {
+                    questionTime -= 1;
+                    timerDisplay.innerHTML = 'Time Remaining: ' + questionTime + ' seconds';
+                    if (questionTime <= 0) {
+                        clearInterval(window.currentTimer);
+                        timerDisplay.innerHTML = 'Time is up!';
+
+                        
+
+                        // Capture the selected answer
+                        var selectedAnswer = document.querySelector(`#question${questionIndex + 1} input[type='radio']:checked`);
+                        var answerValue = selectedAnswer ? selectedAnswer.value : null; // Handle the case where no answer is selected
+
+                        // Emit the answer to the server
+                        socket.emit('submit_answer', {
+                            question_id: questionIndex + 1,
+                            selected_option: answerValue,
+                            quiz_id: "{{ lobby_name }}"
+                            
+                        });
+
+        
+                        // Automatically move to the next question or back to the lobby
+                        var nextPageId = questionIndex + 1 < quiz.questions.length ? 'question' + (questionIndex + 2) : 'lobby';
+                        document.getElementById('pageSelector').value = nextPageId;  // Update the pageSelector value
+                        // Emit an event to the server to inform about the page change
+                        socket.emit('page_change', {lobby_name: "{{ lobby_name }}", newPage: nextPageId});
+                        //switchToPage(nextPageId);  // Switch to the next page
+                    }
+                }, 1000);
+            }
+
+
+            
+        }
+        
+        // Listen for 'answer_received' event to confirm reception
+        socket.on('answer_received', function(data) {
+            console.log('Answer received by server:', data);
+            // You can update the UI here to indicate the answer was received
         });
         
         
-        function switchPageContent(pageIdentifier) {
-            // Just change the background color of the body to ensure the function is called
-            document.body.style.backgroundColor = pageIdentifier === 'page1' ? 'lightblue' : 'lightgreen';
-        }
+        
         
 
-        function adminSwitchPage() {
-            const selectedPage = document.getElementById('pageSelector').value;
-            console.log(selectedPage)
-            // Emit the 'switch_page' event to the server with the selected page
-            socket.emit('switch_page', {lobby_name: "{{ lobby_name }}", new_page: selectedPage});
-        }
+
+
+
+
         
 
     </script>
