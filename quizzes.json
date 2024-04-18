@@ -1,0 +1,48 @@
+{
+    "quizzes": [
+        {
+            "quiz_id": "Quiz1",
+            "owner": "user2",
+            "participants": [
+                {
+                    "username": "user1",
+                    "responses": [
+                        {
+                            "question_id": 1,
+                            "selected_option": "London"
+                        },
+                        {
+                            "question_id": 2,
+                            "selected_option": "Mars"
+                        }
+                    ],
+                    "score": 1
+                }
+            ],
+            "questions": [
+                {
+                    "question": "What is the capital of France?",
+                    "options": [
+                        "Paris",
+                        "London",
+                        "Berlin",
+                        "Madrid"
+                    ],
+                    "correct_answer": "Paris",
+                    "time": 10
+                },
+                {
+                    "question": "Which planet is known as the Red Planet?",
+                    "options": [
+                        "Earth",
+                        "Venus",
+                        "Mars",
+                        "Jupiter"
+                    ],
+                    "correct_answer": "Mars",
+                    "time": 10
+                }
+            ]
+        }
+    ]
+}
