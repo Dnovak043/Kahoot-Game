@@ -2,15 +2,128 @@
 <html>
 <head>
     <title>Login</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
 
+        #title {
+            display: block;
+            position: absolute;
+            width: 300px; /* Increase the width to make the box bigger */
+            height: 55px; /* Increase the height to make the box bigger */
+            top: 10px;
+            left: 10px;
+            text-align: center;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid black; /* Add a black border */
+            border-radius: 5px;
+            font-size: 35px;
+            z-index: 2;
+        }
+
+        #buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 3;
+        }
+
+        #buttons form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        }
+
+        #username {
+            width: 300px;
+            height: 40px;
+            font-size: 20px;
+        }
+
+        #password {
+            width: 300px;
+            height: 40px;
+            font-size: 20px;
+        }
+
+                .button {
+                    display: block;
+                    width: 250px; /* Increase the width to make the buttons bigger */
+                    height: 60px; /* Increase the height to make the buttons bigger */
+                    margin-bottom: 20px;
+                    text-align: center;
+                    font-size: 25px;
+                    border: 1px solid black; /* Add a black border */
+                    border-radius: 5px;
+                    cursor: pointer;
+                    z-index: 1; /* Add this line */
+                    background-color: #EBB652; /* Add this line */
+                }
+                
+                
+                .quadrant {
+                    width: 50%;
+                    height: 50%;
+                    position: absolute;
+                }
+                
+                .orange {
+                    background-color: #F86400;
+                    top: 0;
+                    left: 0;
+                }
+                
+                .blue {
+                    background-color: #0E65A3;
+                    top: 0;
+                    right: 0;
+                }
+                
+                .orangeB {
+                    background-color: #F86400;
+                    bottom: 0;
+                    right: 0;
+                }
+                
+                .blueB {
+                    background-color: #0E65A3;
+                    bottom: 0;
+                    left: 0;
+                }
+
+                .no-underline {
+                    text-decoration: none;
+                }
+        </style>
 </head>
 <body>
-    <h2>Login</h2>
-    <form action="" method="post">
-        Username: <input type="text" name="username" required><br>
-        Password: <input type="password" name="password" required><br>
-        <input type="submit" value="Login">
-    </form>
-    <a href="/register">Register</a>
+    <div id="title">Login</div>
+    <div class="quadrant orange"></div>
+    <div class="quadrant blue"></div>
+    <div class="quadrant orangeB"></div>
+    <div class="quadrant blueB"></div>
+
+    <div id="buttons" style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <form action="" method="post">
+            <input type="text" name="username" id="username" placeholder="Enter Username" required><br>
+            <input type="password" name="password" id="password" placeholder="Enter Password" required><br>
+            <input type="submit" value="Login" class="button">
+        </form>
+        <a href="/register" class="no-underline" style="align-self: center;">
+            <button class="button">Register</button>
+        </a>
+    </div>
 </body>
 </html>

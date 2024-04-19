@@ -334,7 +334,35 @@ def submit_answer(data):
 #     # Redirect or return a result page
 #     #return redirect(url_for('result_page'))  # Redirect to a result or next question page
 
+@app.route('/create_quiz' , methods=['GET', 'POST'])
+def create_quiz():
+    if request.method == 'POST':
+        quiz_name = request.form['quiz_name']
+        owner = session['username']
+        questions = request.form.getlist('questions[]')
+        times = request.form.getlist('times[]')
+        answers = [request.form.getlist('answers_{}[]'.format(i)) for i in range(len(questions))]
+        correct = [request.form.getlist('correct_{}[]'.format(i)) for i in range(len(questions))]
 
+        quiz = {
+            'quiz_id': quiz_name,
+            'owner': owner,
+            'participants': [],
+            'questions': [
+                {
+                    'question': questions[i],
+                    'options': answers[i],
+                    'correct_answer': answers[i][int(correct[i][0])],
+                    'time': int(times[i])
+                } for i in range(len(questions))
+            ]
+        }
+
+        quizzes = load_quizzes()
+        quizzes['quizzes'].append(quiz)
+        save_quizzes(quizzes)
+        return redirect(url_for('select_lobby'))
+    return render_template('create_quiz.html')
 
 def update_score(quiz_id, username, new_score):
     quizzes = load_quizzes()

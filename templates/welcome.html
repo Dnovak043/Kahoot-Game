@@ -2,18 +2,119 @@
 <html>
 <head>
     <title>Welcome</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #title {
+            display: block;
+            position: absolute;
+            width: 300px; /* Increase the width to make the box bigger */
+            height: 55px; /* Increase the height to make the box bigger */
+            top: 10px;
+            left: 10px;
+            text-align: center;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid black; /* Add a black border */
+            border-radius: 5px;
+            font-size: 35px;
+            z-index: 2;
+        }
+
+        #buttons {
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            z-index: 3; /* Add this line */
+        }
+
+                .button {
+                    display: block;
+                    width: 250px; /* Increase the width to make the buttons bigger */
+                    height: 60px; /* Increase the height to make the buttons bigger */
+                    margin-bottom: 20px;
+                    text-align: center;
+                    font-size: 25px;
+                    border: 1px solid black; /* Add a black border */
+                    border-radius: 5px;
+                    cursor: pointer;
+                    z-index: 1; /* Add this line */
+                    background-color: #EBB652; /* Add this line */
+                }
+                
+                .rounded-rectangle {
+                    background-color: white;
+                    border-radius: 15px;
+                    padding: 20px;
+                    margin-top: 20px;
+                    width: 1200px;
+                    height: 700px;
+                }
+
+                .quadrant {
+                    width: 50%;
+                    height: 50%;
+                    position: absolute;
+                }
+                
+                .orange {
+                    background-color: #F86400;
+                    top: 0;
+                    left: 0;
+                }
+                
+                .blue {
+                    background-color: #0E65A3;
+                    top: 0;
+                    right: 0;
+                }
+                
+                .orangeB {
+                    background-color: #F86400;
+                    bottom: 0;
+                    right: 0;
+                }
+                
+                .blueB {
+                    background-color: #0E65A3;
+                    bottom: 0;
+                    left: 0;
+                }
+
+                .no-underline {
+                    text-decoration: none;
+                }
+        </style>
 </head>
 <body>
-    {% if logged_in %}
-        <p>You are logged in. What would you like to do next?</p>
-        <a href="/select_lobby">Select a Lobby</a>
-        <br>
-        <a href="/logout">Log Out</a>
-    {% else %}
-        <p>Please log in to join a chat lobby.</p>
-        <a href="/login">Log In</a>
-        <br>
-        <a href="/register">Register</a>
-    {% endif %}
+    <div id="title">Welcome To Quizzy</div>
+    <div class="quadrant orange"></div>
+    <div class="quadrant blue"></div>
+    <div class="quadrant orangeB"></div>
+    <div class="quadrant blueB"></div>
+
+    <div id="buttons" style="display: flex; flex-direction: column; align-items: center;">
+        {% if logged_in %}
+            <a href="/select_lobby" class="no-underline" style="align-self: flex-end;">
+                <button class="button">Join a Lobby</button>
+            </a>
+            <a href="/logout" class="no-underline" style="align-self: flex-end;">
+                <button class="button">Logout</button>
+            </a>
+        {% else %}
+            <a href="/login" class="no-underline" style="align-self: flex-end; align-items: center;">
+                <button class="button">Log In</button>
+            </a>
+            <a href="/register" class="no-underline" style="align-self: flex-end; align-items: center;">
+                <button class="button">Register</button>
+            </a>
+        {% endif %}
+    </div>
 </body>
 </html>

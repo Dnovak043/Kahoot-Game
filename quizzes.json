@@ -43,6 +43,50 @@
                     "time": 10
                 }
             ]
+        },
+        {
+            "quiz_id": "Apples",
+            "owner": "user1",
+            "participants": [
+                {
+                    "username": "user3",
+                    "responses": [
+                        {
+                            "question_id": 1,
+                            "selected_option": -1
+                        }
+                    ],
+                    "score": 0
+                }
+            ],
+            "questions": [
+                {
+                    "question": "What color is an apple?",
+                    "options": [
+                        "red",
+                        "blue",
+                        "orange"
+                    ],
+                    "correct_answer": "red",
+                    "time": 8
+                }
+            ]
+        },
+        {
+            "quiz_id": "Football",
+            "owner": "user1",
+            "participants": [],
+            "questions": [
+                {
+                    "question": "Who plays in San Fran?",
+                    "options": [
+                        "Chiefs",
+                        "49ers"
+                    ],
+                    "correct_answer": "49ers",
+                    "time": 6
+                }
+            ]
         }
     ]
 }
