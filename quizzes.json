@@ -57,6 +57,16 @@
                         }
                     ],
                     "score": 0
+                },
+                {
+                    "username": "user2",
+                    "responses": [
+                        {
+                            "question_id": 1,
+                            "selected_option": null
+                        }
+                    ],
+                    "score": 0
                 }
             ],
             "questions": [
@@ -75,7 +85,28 @@
         {
             "quiz_id": "Football",
             "owner": "user1",
-            "participants": [],
+            "participants": [
+                {
+                    "username": "user3",
+                    "responses": [
+                        {
+                            "question_id": 1,
+                            "selected_option": -1
+                        }
+                    ],
+                    "score": 0
+                },
+                {
+                    "username": "user2",
+                    "responses": [
+                        {
+                            "question_id": 1,
+                            "selected_option": "49ers"
+                        }
+                    ],
+                    "score": 1
+                }
+            ],
             "questions": [
                 {
                     "question": "Who plays in San Fran?",
@@ -85,6 +116,44 @@
                     ],
                     "correct_answer": "49ers",
                     "time": 6
+                }
+            ]
+        },
+        {
+            "quiz_id": "Ocean",
+            "owner": "user1",
+            "participants": [
+                {
+                    "username": "user3",
+                    "responses": [
+                        {
+                            "question_id": 1,
+                            "selected_option": -1
+                        }
+                    ],
+                    "score": 0
+                },
+                {
+                    "username": "user2",
+                    "responses": [
+                        {
+                            "question_id": 1,
+                            "selected_option": "blue"
+                        }
+                    ],
+                    "score": 1
+                }
+            ],
+            "questions": [
+                {
+                    "question": "what color is the ocean",
+                    "options": [
+                        "blue",
+                        "purple",
+                        "brown"
+                    ],
+                    "correct_answer": "blue",
+                    "time": 10
                 }
             ]
         }

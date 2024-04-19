@@ -280,7 +280,26 @@ def handle_page_change(data):
         print("CHANGING PAGE")
         emit('change_page', {'newPage': new_page}, to=lobby_name)
 
+def join_quiz(data):
+    username = session['username']
+    quiz_id = data['quiz_id']
 
+    # Load quizzes and find the correct quiz
+    quizzes = load_quizzes()
+    quiz = next((q for q in quizzes['quizzes'] if q['quiz_id'] == quiz_id), None)
+    if quiz:
+        participant = next((p for p in quiz['participants'] if p['username'] == username), None)
+        if not participant:
+            # Add the participant with empty responses and score 0
+            quiz['participants'].append({
+                'username': username,
+                'responses': [],
+                'score': 0
+            })
+
+        save_quizzes(quizzes)
+
+    emit('quiz_joined', {'status': 'success', 'quiz_id': quiz_id, 'username': username}, broadcast=True)
 
 @socketio.on('submit_answer')
 def submit_answer(data):
@@ -298,24 +317,21 @@ def submit_answer(data):
             # Find the correct response index and update it
             response = next((r for r in participant['responses'] if r['question_id'] == question_id), None)
             if response:
-                response['selected_option'] = selected_option
+                selected_answer = selected_option
+                response['selected_option'] = selected_answer
             else:
+                selected_answer = selected_option
                 participant['responses'].append({
                     'question_id': question_id,
-                    'selected_option': selected_option,
+                    'selected_option': selected_answer,
                 })
-            
-            print(quiz['questions'][question_id - 1]['correct_answer'])
-            print(selected_option == quiz['questions'][question_id - 1]['correct_answer'])
-            print(participant['score'])
-            
-            if selected_option == quiz['questions'][question_id - 1]['correct_answer']:
-                participant['score'] = participant['score'] + 1
-            
-            save_quizzes(quizzes)
-            
-        emit('answer_received', {'status': 'success', 'question_id': question_id, 'username': username}, broadcast=True)
 
+            if selected_answer == quiz['questions'][question_id - 1]['correct_answer']:
+                participant['score'] += 1
+
+            save_quizzes(quizzes)
+
+        emit('answer_received', {'status': 'success', 'question_id': question_id, 'username': username}, broadcast=True)
 
 
 
