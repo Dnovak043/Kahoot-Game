@@ -249,7 +249,7 @@ def register():
 @app.route('/logout')
 def logout():
     current_lobby = session.get('lobby')
-    if current_lobby and session['username'] in lobbies[current_lobby]['members']:
+    if current_lobby and current_lobby in lobbies and session['username'] in lobbies[current_lobby]['members']:
         lobbies[current_lobby]['members'].remove(session['username'])
         socketio.emit('lobby_updated', {'members': lobbies[current_lobby]['members']}, room=current_lobby)
         leave_room(current_lobby)
