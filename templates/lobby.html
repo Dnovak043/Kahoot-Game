@@ -306,21 +306,6 @@
         }
 
 
-        /*function adminSwitchPage() {
-            // Get the value of the selected option in the dropdown
-            var selectedPage = document.getElementById('pageSelector').value;
-        
-            // Get all page divs under the 'content' div
-            var pages = document.getElementById('content').children;
-        
-            // Loop through all pages and hide them
-            for (var i = 0; i < pages.length; i++) {
-                pages[i].style.display = 'none';
-            }
-        
-            // Display the selected page
-            document.getElementById(selectedPage).style.display = 'block';
-        }*/
 
 
         function adminSwitchPage() {
@@ -382,20 +367,26 @@
                             quiz_id: "{{ lobby_name }}"
                             
                         });
+                        setTimeout(function() {
+                            document.getElementById(pageId).style.display = 'none';  // Show the current page
 
-        
-                        // Automatically move to the next question or back to the lobby
-                        var nextPageId = questionIndex + 1 < quiz.questions.length ? 'question' + (questionIndex + 2) : 'lobby';
-                        document.getElementById('pageSelector').value = nextPageId;  // Update the pageSelector value
-                        // Emit an event to the server to inform about the page change
-                        socket.emit('page_change', {lobby_name: "{{ lobby_name }}", newPage: nextPageId});
-                        //switchToPage(nextPageId);  // Switch to the next page
+                            socket.emit('get_leaderboard', {quiz_id: "{{ lobby_name }}"});
+                        }, 1000);
+
+                        
+
+
+                        // Set a timeout to hide the leaderboard after 5 seconds and move to the next page
+                        setTimeout(function() {
+                            document.getElementById('leaderboard').style.display = 'none';
+                            var nextPageId = questionIndex + 1 < quiz.questions.length ? 'question' + (questionIndex + 2) : 'lobby';
+                            document.getElementById('pageSelector').value = nextPageId;  // Update the pageSelector value
+                            // Emit an event to the server to inform about the page change
+                            socket.emit('page_change', {lobby_name: "{{ lobby_name }}", newPage: nextPageId});
+                        }, 5000); // 5000 milliseconds = 5 seconds
                     }
                 }, 1000);
             }
-
-
-            
         }
         
         // Listen for 'answer_received' event to confirm reception
@@ -403,11 +394,20 @@
             console.log('Answer received by server:', data);
             // You can update the UI here to indicate the answer was received
         });
-        
-        
-        
-        
 
+        socket.on('update_leaderboard', function(data) {
+            var leaderboardList = document.getElementById('leaderboardList');
+            leaderboardList.innerHTML = ''; // Clear existing leaderboard entries
+        
+            data.leaderboard.forEach(function(entry) {
+                var li = document.createElement('li');
+                li.textContent = entry.username + ': ' + entry.score;
+                leaderboardList.appendChild(li);
+            });
+        
+            // Display the leaderboard div
+            document.getElementById('leaderboard').style.display = 'block';
+        });
 
 
 
