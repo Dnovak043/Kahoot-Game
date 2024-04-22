@@ -3,6 +3,7 @@
 <head>
     <title>{{ lobby_name }}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .container {
             display: flex;
@@ -38,6 +39,7 @@
         .right-align {
             position: absolute;
             left: 40%;
+            margin-top: -225px;
         }
         body {
             display: flex;
@@ -45,6 +47,11 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+        }
+
+        #leaderboardChart {
+            z-index: 1000; /* Adjust this value as needed */
+            position: relative; /* z-index only works on positioned elements */
         }
 
         #title {
@@ -205,10 +212,14 @@
                     {% endfor %}
                 {% endif %}
 
-                <div id="leaderboard" style="display: none;">
+                <div id="leaderboard" style="display: flex;">
                     <h2>Leaderboard</h2>
                     <ul id="leaderboardList"></ul>
-                </div>        
+                </div>
+                
+                <div style="width: 75%; display: block;">
+                    <canvas id="leaderboardChart"></canvas>
+                </div>
 
             </div>
 
@@ -252,6 +263,10 @@
 
             //adminSwitchPage()
             updateAdminControls(membersList)
+
+            function showLeaderboard() {
+                document.getElementById('leaderboard').style.display = 'block';
+            }
         });
 
         socket.on('remove_user', function(data)  {
@@ -367,6 +382,7 @@
                             quiz_id: "{{ lobby_name }}"
                             
                         });
+
                         setTimeout(function() {
                             document.getElementById(pageId).style.display = 'none';  // Show the current page
 
@@ -383,7 +399,7 @@
                             document.getElementById('pageSelector').value = nextPageId;  // Update the pageSelector value
                             // Emit an event to the server to inform about the page change
                             socket.emit('page_change', {lobby_name: "{{ lobby_name }}", newPage: nextPageId});
-                        }, 5000); // 5000 milliseconds = 5 seconds
+                        }, 10000); // 5000 milliseconds = 5 seconds
                     }
                 }, 1000);
             }
@@ -395,18 +411,55 @@
             // You can update the UI here to indicate the answer was received
         });
 
+        // Declare chart variable outside of the socket event handler
+        var chart;
+
         socket.on('update_leaderboard', function(data) {
             var leaderboardList = document.getElementById('leaderboardList');
             leaderboardList.innerHTML = ''; // Clear existing leaderboard entries
-        
+
+            var usernames = [];
+            var scores = [];
+
             data.leaderboard.forEach(function(entry) {
+                usernames.push(entry.username);
+                scores.push(entry.score);
+
                 var li = document.createElement('li');
                 li.textContent = entry.username + ': ' + entry.score;
                 leaderboardList.appendChild(li);
             });
-        
+
             // Display the leaderboard div
             document.getElementById('leaderboard').style.display = 'block';
+
+            // Destroy the existing chart if it exists
+            if (chart) {
+                chart.destroy();
+            }
+
+            // Create the new chart
+            var ctx = document.getElementById('leaderboardChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: usernames,
+                    datasets: [{
+                        label: 'Score',
+                        data: scores,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
         });
 
 

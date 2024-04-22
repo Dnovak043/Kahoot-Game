@@ -63,10 +63,10 @@
                     "responses": [
                         {
                             "question_id": 1,
-                            "selected_option": null
+                            "selected_option": "red"
                         }
                     ],
-                    "score": 0
+                    "score": 1
                 }
             ],
             "questions": [
@@ -166,10 +166,10 @@
                     "responses": [
                         {
                             "question_id": 1,
-                            "selected_option": "Ps5"
+                            "selected_option": "Xbox"
                         }
                     ],
-                    "score": 3
+                    "score": 0
                 }
             ],
             "questions": [
