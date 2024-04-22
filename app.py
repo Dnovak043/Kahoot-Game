@@ -280,26 +280,7 @@ def handle_page_change(data):
         print("CHANGING PAGE")
         emit('change_page', {'newPage': new_page}, to=lobby_name)
 
-def join_quiz(data):
-    username = session['username']
-    quiz_id = data['quiz_id']
 
-    # Load quizzes and find the correct quiz
-    quizzes = load_quizzes()
-    quiz = next((q for q in quizzes['quizzes'] if q['quiz_id'] == quiz_id), None)
-    if quiz:
-        participant = next((p for p in quiz['participants'] if p['username'] == username), None)
-        if not participant:
-            # Add the participant with empty responses and score 0
-            quiz['participants'].append({
-                'username': username,
-                'responses': [],
-                'score': 0
-            })
-
-        save_quizzes(quizzes)
-
-    emit('quiz_joined', {'status': 'success', 'quiz_id': quiz_id, 'username': username}, broadcast=True)
 
 @socketio.on('submit_answer')
 def submit_answer(data):
@@ -335,20 +316,20 @@ def submit_answer(data):
 
 
 
+@socketio.on('get_leaderboard')
+def get_leaderboard(data):
+    quiz_id = data['quiz_id']
+    
+    quizzes = load_quizzes()
+    quiz = next((q for q in quizzes['quizzes'] if q['quiz_id'] == quiz_id), None)
+    if quiz:
+        leaderboard_data = [{'username': p['username'], 'score': p['score']} for p in quiz['participants']]
+        emit('update_leaderboard', {'leaderboard': leaderboard_data}, to=quiz_id)
+
+
 ######### QUIZZES #########
 
-# @app.route('/submit_answer', methods=['POST'])
-# def submit_answer():
-#     question_id = request.form.get('question_id')
-#     selected_answer = request.form.get('selected_answer')
-    
-#     print(session['username'])
-#     print(question_id)
-#     print(selected_answer)
-#     print()
-#     # Process the answer, e.g., record it, check if it's correct, etc.
-#     # Redirect or return a result page
-#     #return redirect(url_for('result_page'))  # Redirect to a result or next question page
+
 
 @app.route('/create_quiz' , methods=['GET', 'POST'])
 def create_quiz():
@@ -380,15 +361,6 @@ def create_quiz():
         return redirect(url_for('select_lobby'))
     return render_template('create_quiz.html')
 
-def update_score(quiz_id, username, new_score):
-    quizzes = load_quizzes()
-    for quiz in quizzes['quizzes']:
-        if quiz['quiz_id'] == quiz_id:
-            for participant in quiz['participants']:
-                if participant['username'] == username:
-                    participant['score'] = new_score
-                    break
-    save_quizzes(quizzes)
 
 
 
@@ -403,4 +375,3 @@ def update_score(quiz_id, username, new_score):
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
-
