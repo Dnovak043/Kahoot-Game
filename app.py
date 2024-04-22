@@ -33,7 +33,9 @@ def load_quizzes():
         with open('quizzes.json', 'r') as file:
             return json.load(file)
     except FileNotFoundError:
-        return {'quizzes': []}  # Return empty list if file not found
+        return {'quizzes': []}  # Return an empty list if the file is not found
+    except json.JSONDecodeError:
+        return {'quizzes': []}  # Return an empty list if the file is corrupt or empty
 
 
 
@@ -118,7 +120,7 @@ def select_lobby():
                             quiz['participants'].append(participant)
                             save_quizzes(quizzes)  # Save updates to file or database
 
-                
+    
                 
         else:
             chosen_lobby = request.form.get('lobby')
@@ -154,6 +156,19 @@ def select_lobby():
     return render_template('select_lobby.html', lobbies=lobbies.keys(), quizzes=owned_quizzes)
 
 
+
+
+@app.route('/quiz_history')
+def quiz_history():
+    username = session['username']  # Ensure the user is logged in
+    quizzes = load_quizzes()  # Assuming this function is defined to load your quizzes data
+
+    user_quizzes = [
+        quiz for quiz in quizzes['quizzes']
+        if any(participant['username'] == username for participant in quiz['participants'])
+    ]
+
+    return render_template('quiz_history.html', user_quizzes=user_quizzes)
 
 
 
@@ -300,12 +315,17 @@ def submit_answer(data):
             if response:
                 selected_answer = selected_option
                 response['selected_option'] = selected_answer
+                print(question_id)
+                
             else:
                 selected_answer = selected_option
                 participant['responses'].append({
                     'question_id': question_id,
                     'selected_option': selected_answer,
                 })
+                
+            if question_id == 1:
+                    participant['score'] = 0
 
             if selected_answer == quiz['questions'][question_id - 1]['correct_answer']:
                 participant['score'] += 1
