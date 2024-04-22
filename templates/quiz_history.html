@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Quiz History</title>
+    <style>
+        .correct { color: green; }
+        .incorrect { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Your Quiz History</h1>
+    {% for quiz in user_quizzes %}
+    <div>
+        <h2>{{ quiz.quiz_id }}</h2>
+        <ul>
+            {% set participant = quiz.participants | selectattr("username", "equalto", session['username']) | first %}
+            {% for question in quiz.questions %}
+                {% set response = participant.responses | selectattr("question_id", "equalto", loop.index) | first if participant %}
+                <li>
+                    {{ question.question }}
+                    {% if response %}
+                        <span class="{{ 'correct' if response.selected_option == question.correct_answer else 'incorrect' }}">
+                            Your answer: {{ response.selected_option }}
+                        </span>
+                    {% else %}
+                        <span>No response</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+            <p>Score: {{ participant.score if participant else 'N/A' }}/{{ quiz.questions|length }}</p>
+        </ul>
+        </div>
+    {% endfor %}
+
+</body>
+</html>
