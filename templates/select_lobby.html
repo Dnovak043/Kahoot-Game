@@ -131,6 +131,21 @@
                     <input type="radio" id="{{ lobby }}" name="lobby" value="{{ lobby }}">
                     <label for="{{ lobby }}">{{ lobby }}</label><br>
                 {% endfor %}
+
+                <!-- Quiz selection section -->
+                <h2>Select Your Quiz</h2>
+                {% for quiz in quizzes %}
+                    <input type="radio" id="{{ quiz.quiz_id }}" name="lobby_code" value="{{ quiz.quiz_id }}">
+                    <label for="{{ quiz.quiz_id }}">{{ quiz.quiz_id }} - {{ quiz.questions|length }} Questions</label><br>
+                {% endfor %}
+
+                <!-- Lobby code entry section -->
+                <label for="lobby_code">Or enter a lobby code:</label>
+                <input type="text" id="lobby_code" name="lobby_code"><br>
+
+                <!-- Generate code button -->
+                <input type="submit" value="Join Selected Lobby">
+                <button type="button" onclick="generateLobbyCode()">Generate Code</button>
             </form>
         </div>
         <div id="buttons" style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
@@ -140,19 +155,6 @@
             <a href="/logout" class="no-underline" style="align-self: center;">
                 <button class="button">Logout</button>
             </a>
-        </div>
-        <div class="box" style="display: flex; flex-direction: column; align-items: center;">
-            <h2>Select Your Quiz</h2>
-            <form action="" method="post">
-                {% for quiz in quizzes %}
-                    <input type="radio" id="{{ quiz.quiz_id }}" name="lobby_code" value="{{ quiz.quiz_id }}">
-                    <label for="{{ quiz.quiz_id }}">{{ quiz.quiz_id }} - {{ quiz.questions|length }} Questions</label><br>
-                {% endfor %}
-                <label for="lobby_code">Or enter a lobby code:</label>
-                <input type="text" id="lobby_code" name="lobby_code"><br>
-                <input type="submit" value="Join Selected Lobby">
-                <button type="button" onclick="generateLobbyCode()">Generate Code</button>
-            </form>
         </div>
     </div>
     <script>

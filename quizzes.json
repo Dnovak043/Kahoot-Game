@@ -156,6 +156,34 @@
                     "time": 10
                 }
             ]
+        },
+        {
+            "quiz_id": "Videogames",
+            "owner": "user1",
+            "participants": [
+                {
+                    "username": "user2",
+                    "responses": [
+                        {
+                            "question_id": 1,
+                            "selected_option": "PC"
+                        }
+                    ],
+                    "score": 2
+                }
+            ],
+            "questions": [
+                {
+                    "question": "Playstation or Xbox",
+                    "options": [
+                        "Ps5",
+                        "Xbox",
+                        "PC"
+                    ],
+                    "correct_answer": "Ps5",
+                    "time": 10
+                }
+            ]
         }
     ]
 }
