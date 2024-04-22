@@ -3,90 +3,228 @@
 <head>
     <title>{{ lobby_name }}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            height: 50%;
+            width: 70%;
+            z-index: 10;
+        }
+        .box {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            width: 30%;
+            z-index: 10;
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-between; /* Adjust as needed */
+        }
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .left-align {
+            position: absolute;
+            right: 40%;
+        }
+        .right-align {
+            position: absolute;
+            left: 40%;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
 
+        #title {
+            display: block;
+            position: absolute;
+            width: 300px; /* Increase the width to make the box bigger */
+            height: 55px; /* Increase the height to make the box bigger */
+            top: 10px;
+            left: 10px;
+            text-align: center;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid black; /* Add a black border */
+            border-radius: 5px;
+            font-size: 35px;
+            z-index: 2;
+        }
+
+        #buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        #buttons form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 999;
+        }
+
+                .button {
+                    display: block;
+                    width: 250px; /* Increase the width to make the buttons bigger */
+                    height: 60px; /* Increase the height to make the buttons bigger */
+                    margin-bottom: 20px;
+                    text-align: center;
+                    font-size: 25px;
+                    border: 1px solid black; /* Add a black border */
+                    border-radius: 5px;
+                    cursor: pointer;
+                    z-index: 1; /* Add this line */
+                    background-color: #EBB652; /* Add this line */
+                }
+                
+                
+                .quadrant {
+                    width: 50%;
+                    height: 50%;
+                    position: absolute;
+                }
+                
+                .orange {
+                    background-color: #F86400;
+                    top: 0;
+                    left: 0;
+                }
+                
+                .blue {
+                    background-color: #0E65A3;
+                    top: 0;
+                    right: 0;
+                }
+                
+                .orangeB {
+                    background-color: #F86400;
+                    bottom: 0;
+                    right: 0;
+                }
+                
+                .blueB {
+                    background-color: #0E65A3;
+                    bottom: 0;
+                    left: 0;
+                }
+
+                .no-underline {
+                    text-decoration: none;
+                }
+    </style>
 </head>
 <body>
-    
+    <div class="quadrant orange"></div>
+    <div class="quadrant blue"></div>
+    <div class="quadrant orangeB"></div>
+    <div class="quadrant blueB"></div>
     
     
     <!-- Admin Controls -->
     <div id="adminControls" style="display: none;">
-        <h3>Admin Controls</h3>
-        <ul id="adminMembers">
-            Members
+        <div class="container right-align">
+            <div class="box" style="display: flex; flex-direction: column; align-items: center;">
+                <h3>Admin Controls</h3>
+                <ul id="adminMembers">
+                    Members
             
-        </ul>
-
-        <!-- Example dropdown menu for admin to select a new page to switch to -->
-        <select id="pageSelector" onchange="adminSwitchPage()">
-            <option value="lobby">Lobby</option>
-            {% for question in quiz.questions %}
-            <option value="question{{ loop.index }}">question{{ loop.index }}</option>
-            {% endfor %}
-            <!-- Add more options as needed -->
-        </select>
-
-
-        <h2>Quiz Questions</h2>
-        <div>
-            {% for question in quiz.questions %}
-            <div>
-                <p><strong>Question: </strong>{{ question.question }}</p>
-                <ul>
-                    {% for option in question.options %}
-                    <li>{{ option }}</li>
-                    {% endfor %}
                 </ul>
-            </div>
-            {% endfor %}
-        </div>
 
-        
+                <!-- Example dropdown menu for admin to select a new page to switch to -->
+                <select id="pageSelector" onchange="adminSwitchPage()">
+                    <option value="lobby">Lobby</option>
+                    {% for question in quiz.questions %}
+                    <option value="question{{ loop.index }}">question{{ loop.index }}</option>
+                    {% endfor %}
+                    <!-- Add more options as needed -->
+                </select>
+
+
+                <h2>Quiz Questions</h2>
+                <div>
+                    {% for question in quiz.questions %}
+                    <div>
+                        <p><strong>Question: </strong>{{ question.question }}</p>
+                        <ul>
+                            {% for option in question.options %}
+                            <li>{{ option }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </div> <!-- Admin Controls End -->
 
-    <div id="content">
-        <div id="lobby" style="display: block;">
-            <h1>Welcome to {{ lobby_name }}</h1>
-            <!-- Displaying the admin -->
-            <h3>Lobby Admin: {{ lobby_admin }}</h3>
+    <div class="container left-align">
+        <div class="box" style="display: flex; flex-direction: column; align-items: center;">
+            <div id="content">
+                <div id="lobby" style="display: block;">
+                    <h1>Welcome to {{ lobby_name }}</h1>
+                    <!-- Displaying the admin -->
+                    <h3>Lobby Admin: {{ lobby_admin }}</h3>
 
-            <h2>Members:</h2>
-            <ul id="membersList">
-            </ul>
+                    <h2>Members:</h2>
+                    <ul id="membersList">
+                    </ul>
 
             
             <!-- Content for Page 1 -->
-        </div>
+                </div>
         
-        <!-- Dynamically generated question pages -->
-        {% if quiz %}
-            {% for question in quiz.questions %}
-            <div id="question{{ loop.index }}" style="display: none;">
-                <h2>{{ question.question }}</h2>
-                <ul>
-                    {% for option in question.options %}
-                    <li>
-                        <input type="radio" id="option{{ loop.index }}_{{ loop.index0 }}" name="selected_answer" value="{{ option }}">
-                        <label for="option{{ loop.index }}_{{ loop.index0 }}">{{ option }}</label>
-                    </li>
+                <!-- Dynamically generated question pages -->
+                {% if quiz %}
+                    {% for question in quiz.questions %}
+                    <div id="question{{ loop.index }}" style="display: none;">
+                        <h2>{{ question.question }}</h2>
+                        <ul>
+                            {% for option in question.options %}
+                            <li>
+                                <input type="radio" id="option{{ loop.index }}_{{ loop.index0 }}" name="selected_answer" value="{{ option }}">
+                                <label for="option{{ loop.index }}_{{ loop.index0 }}">{{ option }}</label>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                     {% endfor %}
-                </ul>
+                {% endif %}
+
+                <div id="leaderboard" style="display: none;">
+                    <h2>Leaderboard</h2>
+                    <ul id="leaderboardList"></ul>
+                </div>        
+
             </div>
-            {% endfor %}
-        {% endif %}
 
-        <div id="leaderboard" style="display: none;">
-            <h2>Leaderboard</h2>
-            <ul id="leaderboardList"></ul>
-        </div>        
-
+        </div>
     </div>
-
-</div>
     
-
-    <a href="/select_lobby">Select a different lobby</a>
-    <a href="/logout">Logout</a>
+        <div id="buttons" style="display: flex; flex-direction: column; align-items: center;">
+            <a href="/select_lobby" class="no-underline" style="align-self: center;">
+                <button class="button">Select Different Lobby</button>
+            </a>
+            <a href="/logout" class="no-underline" style="align-self: center;">
+                <button class="button">Logout</button>
+            </a>
+        </div>
+    <!-- <a href="/select_lobby">Select a different lobby</a>
+    <a href="/logout">Logout</a> -->
 
     <script type="text/javascript">
         var quiz = {{ quiz|tojson }};
