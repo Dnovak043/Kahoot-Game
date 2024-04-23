@@ -10,7 +10,7 @@
     </style>
 </head>
 <body>
-    <h1>Your Quiz History</h1>
+    <h1>Previous Quiz History</h1>
     {% for quiz in user_quizzes %}
     <div>
         <h2>{{ quiz.quiz_id }}</h2>
@@ -31,8 +31,69 @@
             {% endfor %}
             <p>Score: {{ participant.score if participant else 'N/A' }}/{{ quiz.questions|length }}</p>
         </ul>
-        </div>
+    </div>
     {% endfor %}
 
+    <h2>Quizzes I Own</h2>
+    {% for quiz in owner_quizzes %}
+    <div>
+        <h3>{{ quiz.quiz_id }} Questions</h3>
+        <p>Average Score: {{ quiz.average_score }}</p>
+        <p>Lowest Score: {{ quiz.lowest_score }}</p>
+        <p>Highest Score: {{ quiz.highest_score }}</p>
+        <details>
+            <summary>Question Breakdown</summary>
+            {% for question in quiz.question_stats %}
+            <p>{{ question.question }}: {{ question.correct_percentage }}% correct</p>
+            {% endfor %}
+        </details>
+        
+        <summary>Participant Details</summary>
+        <select id="participantDropdown{{ quiz.quiz_id }}" onchange="showParticipantDetails('{{ quiz.quiz_id }}')">
+            <option value="">Select a participant</option>
+            {% for participant in quiz.participants %}
+            <option value="{{ participant.username }}">{{ participant.username }}</option>
+            {% endfor %}
+        </select>
+
+        
+        {% for participant in quiz.participants %}
+        <div id="{{ quiz.quiz_id }}_{{ participant.username }}" style="display: none">
+            <h2>{{ quiz.quiz_id }}</h2>
+            <ul>
+                <p>Score: {{ participant.score }}</p>
+                {% for question in quiz.question_stats %}
+                    {% set response = participant.responses | selectattr("question_id", "equalto", loop.index) | first %}
+                    <p>{{ question.question }}</p>
+                    <span class="{{ 'correct' if response.selected_option == question.correct_answer else 'incorrect' }}">
+                        Selected Answer: {{ response.selected_option if response else "No response" }}
+                    </span>
+                {% endfor %}
+
+            </ul>
+        </div>
+        {% endfor %}
+
+    </div>
+    {% endfor %}
+    
+<script>
+    function showParticipantDetails(quiz_id) {
+        var dropdown = document.getElementById('participantDropdown' + quiz_id);
+        var selectedUser = dropdown.value;
+        var participantDiv = document.getElementById(quiz_id + "_" + selectedUser);
+
+        console.log(quiz_id + "_" + selectedUser)
+        document.getElementById(quiz_id + "_" + selectedUser).style.display = 'block';
+    
+        // Only show the selected participant's div if it exists
+        if (selectedUser) {
+            participantDiv.style.display = 'block';
+        } else {
+            console.log('No participant div found for username:', selectedUser);
+        }
+    }
+    
+</script>
 </body>
 </html>
