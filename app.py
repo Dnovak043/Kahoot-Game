@@ -158,8 +158,11 @@ def select_lobby():
 
 
 
+
 @app.route('/quiz_history')
 def quiz_history():
+    if 'username' not in session:
+        return redirect(url_for('login'))  # Ensure the user is logged in
     username = session['username']  # Ensure the user is logged in
     quizzes = load_quizzes()  # Assuming this function is defined to load your quizzes data
 
@@ -168,7 +171,41 @@ def quiz_history():
         if any(participant['username'] == username for participant in quiz['participants'])
     ]
 
-    return render_template('quiz_history.html', user_quizzes=user_quizzes)
+    owner_quizzes = []
+    for quiz in quizzes['quizzes']:
+        if quiz['owner'] == username:
+            # Calculate quiz statistics
+            total_scores = [p['score'] for p in quiz['participants']]
+            average_score = sum(total_scores) / len(total_scores) if total_scores else 0
+            highest_score = max(total_scores) if total_scores else 0
+            lowest_score = min(total_scores) if total_scores else 0
+            
+            # Calculate percentage of correct answers per question
+            question_stats = []
+            for index, question in enumerate(quiz['questions']):
+                total_responses = len([p for p in quiz['participants'] if p['responses']])
+                correct_responses = len([
+                    p for p in quiz['participants']
+                    for r in p['responses']
+                    if r['question_id'] == index + 1 and r['selected_option'] == question['correct_answer']
+                ])
+                correct_percentage = (correct_responses / total_responses * 100) if total_responses else 0
+                question_stats.append({
+                    'question': question['question'],
+                    'correct_percentage': correct_percentage,
+                    'correct_answer': question['correct_answer'],
+                })
+
+            owner_quizzes.append({
+                'quiz_id': quiz['quiz_id'],
+                'average_score': average_score,
+                'highest_score': highest_score,
+                'lowest_score': lowest_score,
+                'question_stats': question_stats,
+                'participants': quiz['participants']
+            })
+
+    return render_template('quiz_history.html', user_quizzes=user_quizzes, owner_quizzes=owner_quizzes)
 
 
 
