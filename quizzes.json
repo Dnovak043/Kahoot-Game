@@ -184,6 +184,46 @@
                     "time": 10
                 }
             ]
+        },
+        {
+            "quiz_id": "Food",
+            "owner": "user1",
+            "participants": [
+                {
+                    "username": "user2",
+                    "responses": [
+                        {
+                            "question_id": 1,
+                            "selected_option": "hamburger"
+                        },
+                        {
+                            "question_id": 2,
+                            "selected_option": "pizza"
+                        }
+                    ],
+                    "score": 2
+                }
+            ],
+            "questions": [
+                {
+                    "question": "hot dog or hamburger?",
+                    "options": [
+                        "hot dog",
+                        "hamburger"
+                    ],
+                    "correct_answer": "hamburger",
+                    "time": 9
+                },
+                {
+                    "question": "pasta or pizza",
+                    "options": [
+                        "pizza",
+                        "pasta"
+                    ],
+                    "correct_answer": "pizza",
+                    "time": 8
+                }
+            ]
         }
     ]
 }
